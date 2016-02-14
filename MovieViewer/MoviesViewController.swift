@@ -32,8 +32,9 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         
         if Reachability.isConnectedToNetwork() {
             errMsgButton.hidden = true
+            MBProgressHUD.showHUDAddedTo(self.view, animated: true)// show loading state
             loadDataFromNetwork()
-
+            MBProgressHUD.hideHUDForView(self.view, animated: true)// hide loading state
         } else {
             errMsgButton.hidden = false
         }
@@ -82,11 +83,13 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         )
         
         // show loading state
-        MBProgressHUD.showHUDAddedTo(self.view, animated: true)
+        //
     
         let task: NSURLSessionDataTask = session.dataTaskWithRequest(request,
             completionHandler: { (dataOrNil, response, error) in
-                MBProgressHUD.hideHUDForView(self.view, animated: true) //hide loading state
+                //hide loading state
+                //
+                
                 if let data = dataOrNil {
                     if let responseDictionary = try! NSJSONSerialization.JSONObjectWithData(
                         data, options:[]) as? NSDictionary {
@@ -99,9 +102,26 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         task.resume()
     }
     
-    
+    @IBAction func errMsgTap(sender: AnyObject) {
+        if Reachability.isConnectedToNetwork() {
+            errMsgButton.hidden = true
+            MBProgressHUD.showHUDAddedTo(self.view, animated: true)
+            loadDataFromNetwork()
+            MBProgressHUD.hideHUDForView(self.view, animated: true)
+        } else {
+            errMsgButton.hidden = false
+        }
+    }
+
     func refreshControlAction(refreshControl: UIRefreshControl) {
-            
+        
+        if Reachability.isConnectedToNetwork() {
+            errMsgButton.hidden = true
+        } else {
+            errMsgButton.hidden = false
+            refreshControl.endRefreshing()
+        }
+        
         let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
         let url = NSURL(string: "https://api.themoviedb.org/3/movie/now_playing?api_key=\(apiKey)")
         let request = NSURLRequest(
@@ -114,13 +134,10 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
             delegate: nil,
             delegateQueue: NSOperationQueue.mainQueue()
         )
-        
-        // show loading state
-        MBProgressHUD.showHUDAddedTo(self.view, animated: true)
+    
         
         let task: NSURLSessionDataTask = session.dataTaskWithRequest(request,
             completionHandler: { (dataOrNil, response, error) in
-                MBProgressHUD.hideHUDForView(self.view, animated: true) //hide loading state
                 if let data = dataOrNil {
                     if let responseDictionary = try! NSJSONSerialization.JSONObjectWithData(
                         data, options:[]) as? NSDictionary {

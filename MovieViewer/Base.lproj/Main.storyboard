@@ -20,6 +20,9 @@
                                 <state key="normal" title="⚠️ Network Error!">
                                     <color key="titleColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 </state>
+                                <connections>
+                                    <action selector="errMsgTap:" destination="BYZ-38-t0r" eventType="touchUpInside" id="uJz-Lb-CGr"/>
+                                </connections>
                             </button>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="159" sectionHeaderHeight="28" sectionFooterHeight="28" id="Wxh-hy-YuJ">
                                 <rect key="frame" x="0.0" y="50" width="414" height="647"/>
