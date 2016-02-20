@@ -15,9 +15,11 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var errMsgButton: UIButton!
+    @IBOutlet weak var searchBar: UISearchBar!
     
     
     var movies: [NSDictionary]?
+    var searchResults: [NSDictionary]?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,16 +31,35 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: "refreshControlAction:", forControlEvents: UIControlEvents.ValueChanged)
         tableView.insertSubview(refreshControl, atIndex: 0)
+//        tableView.addSubview(errMsgButton)
         
         if Reachability.isConnectedToNetwork() {
             errMsgButton.hidden = true
+//            errMsgButton.removeFromSuperview()
             MBProgressHUD.showHUDAddedTo(self.view, animated: true)// show loading state
             loadDataFromNetwork()
             MBProgressHUD.hideHUDForView(self.view, animated: true)// hide loading state
         } else {
             errMsgButton.hidden = false
         }
+        
+        
         // Do any additional setup after loading the view.
+        
+//        searchBarTextDidBeginEditing(searchBar: UISearchBar)
+//        
+//        searchBarCancelButtonClicked(searchBar: UISearchBar)
+//        
+//        func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
+//            self.searchBar.showsCancelButton = true
+//        }
+//        
+//        func searchBarCancelButtonClicked(searchBar: UISearchBar) {
+//            searchBar.showsCancelButton = false
+//            searchBar.text = ""
+//            searchBar.resignFirstResponder()
+//        }
+        
     }
     
     internal class Reachability {
@@ -167,18 +188,27 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("MovieCell", forIndexPath: indexPath) as! MovieCell
         
+
         let movie = movies![indexPath.row]
         let title = movie["title"] as! String
         let overview = movie["overview"] as! String
-        let posterPath = movie["poster_path"] as! String
+
+        //if let posterPath = movie["poster_path"] as? String
         
-        let baseUrl = "http://image.tmdb.org/t/p/w500"
         
-        let imageUrl = NSURL(string: baseUrl + posterPath)
+        //let posterPath = movie["poster_path"] as! String
         
+        
+        
+        if let posterPath = movie["poster_path"] as? String {
+            //Encountered a movie with nil poster_path!
+            let baseUrl = "http://image.tmdb.org/t/p/w500"
+            let imageUrl = NSURL(string: baseUrl + posterPath)
+            cell.posterView.setImageWithURL(imageUrl!)
+        }
+
         cell.titleLabel.text = title
         cell.overviewLabel.text = overview
-        cell.posterView.setImageWithURL(imageUrl!)
         
         return cell
     }
@@ -192,5 +222,6 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         // Pass the selected object to the new view controller.
     }
     */
+
 
 }
