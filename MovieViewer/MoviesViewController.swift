@@ -9,9 +9,9 @@
 import UIKit
 import AFNetworking
 import MBProgressHUD
-import SystemConfiguration
+//import SystemConfiguration
 
-class MoviesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class MoviesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var errMsgButton: UIButton!
@@ -19,8 +19,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     
     
     var movies: [NSDictionary]?
-    var searchResults: [NSDictionary]?
-    
+    var filteredData: [NSDictionary]?
     var endpoint : String!
     
     override func viewDidLoad() {
@@ -29,6 +28,8 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         
         tableView.dataSource = self
         tableView.delegate = self
+        searchBar.delegate = self
+        
         
         // Initialize a UIRefreshControl
         let refreshControl = UIRefreshControl()
@@ -119,6 +120,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
                         data, options:[]) as? NSDictionary {
                             //print("response: \(responseDictionary)")
                             self.movies = responseDictionary["results"] as? [NSDictionary]
+                            self.filteredData = self.movies
                             self.tableView.reloadData()
                     }
                 }
@@ -146,43 +148,16 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
             refreshControl.endRefreshing()
         }
         
-        let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
-        let url = NSURL(string: "https://api.themoviedb.org/3/movie/now_playing?api_key=\(apiKey)")
-        let request = NSURLRequest(
-            URL: url!,
-            cachePolicy: NSURLRequestCachePolicy.ReloadIgnoringLocalCacheData,
-            timeoutInterval: 10)
-        
-        let session = NSURLSession(
-            configuration: NSURLSessionConfiguration.defaultSessionConfiguration(),
-            delegate: nil,
-            delegateQueue: NSOperationQueue.mainQueue()
-        )
-    
-        
-        let task: NSURLSessionDataTask = session.dataTaskWithRequest(request,
-            completionHandler: { (dataOrNil, response, error) in
-                if let data = dataOrNil {
-                    if let responseDictionary = try! NSJSONSerialization.JSONObjectWithData(
-                        data, options:[]) as? NSDictionary {
-                            //print("response: \(responseDictionary)")
-                            self.movies = responseDictionary["results"] as? [NSDictionary]
-                            // Reload the tableView now that there is new data
-                            self.tableView.reloadData()
-                            // Tell the refreshControl to stop spinning
-                            refreshControl.endRefreshing()
-                    }
-                }
-        })
-        task.resume()
+        loadDataFromNetwork()
+        refreshControl.endRefreshing()
     
     }
     
 
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if let movies = movies {
-            return movies.count
+        if let filteredData = filteredData {
+            return filteredData.count
         } else {
             return 0
         }
@@ -192,7 +167,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         let cell = tableView.dequeueReusableCellWithIdentifier("MovieCell", forIndexPath: indexPath) as! MovieCell
         
 
-        let movie = movies![indexPath.row]
+        let movie = filteredData![indexPath.row]
         let title = movie["title"] as! String
         let overview = movie["overview"] as! String
         
@@ -213,7 +188,39 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         return cell
     }
 
+    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+        filteredData = self.movies
+        if searchText.isEmpty {
+            tableView.reloadData()
+        }
+        else {
+            var searchDic = [NSDictionary]()
+            for each in filteredData! {
+                let titleString = each["title"] as? String
+                if titleString!.rangeOfString(searchText, options: .CaseInsensitiveSearch) != nil {
+                    searchDic.append(each)
+                }
+                
+                filteredData = searchDic
+            }
+            tableView.reloadData()
+        }
+    }
     
+    func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
+        self.searchBar.showsCancelButton = true
+    }
+    
+    func searchBarCancelButtonClicked(searchBar: UISearchBar) {
+        searchBar.showsCancelButton = false
+        searchBar.text = ""
+        searchBar.resignFirstResponder()
+        filteredData = movies
+        tableView.reloadData()
+    }
+        
+        
+        
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
