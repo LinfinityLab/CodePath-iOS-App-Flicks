@@ -79,6 +79,7 @@
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina55"/>
                     <connections>
                         <outlet property="errMsgButton" destination="8om-NK-hKA" id="DTz-cX-yoe"/>
+                        <outlet property="navBar" destination="hGX-pL-ylf" id="HgR-Zu-fuq"/>
                         <outlet property="searchBar" destination="fuc-kV-4gm" id="djC-sG-Huo"/>
                         <outlet property="tableView" destination="Wxh-hy-YuJ" id="txD-S5-Qxo"/>
                     </connections>

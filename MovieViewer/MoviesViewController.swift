@@ -16,20 +16,22 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var errMsgButton: UIButton!
     @IBOutlet weak var searchBar: UISearchBar!
+    @IBOutlet weak var navBar: UINavigationItem!
     
     
     var movies: [NSDictionary]?
     var filteredData: [NSDictionary]?
     var endpoint : String!
+    var navBarTitle: String!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         
         tableView.dataSource = self
         tableView.delegate = self
         searchBar.delegate = self
         
+        navBar.title = navBarTitle
         
         // Initialize a UIRefreshControl
         let refreshControl = UIRefreshControl()
